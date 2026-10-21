@@ -1,0 +1,65 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    match /admins/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, create, update, delete: if false;
+    }
+
+    match /animals/{animalId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /tours/{tourId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if isAdmin() || resource.data.status == 'approved';
+      allow create: if request.resource.data.keys().hasOnly([
+          'userName', 'rating', 'comment', 'createdAt', 'status'
+        ])
+        && request.resource.data.userName is string
+        && request.resource.data.userName.size() > 0
+        && request.resource.data.userName.size() <= 80
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() > 0
+        && request.resource.data.comment.size() <= 1200
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.status == 'pending';
+      allow update, delete: if isAdmin();
+    }
+
+    match /bookings/{bookingId} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+          'tourTitle', 'clientName', 'clientPhone', 'visitDate',
+          'guestsCount', 'totalPrice', 'createdAt'
+        ])
+        && request.resource.data.tourTitle is string
+        && request.resource.data.clientName is string
+        && request.resource.data.clientName.size() > 0
+        && request.resource.data.clientPhone is string
+        && request.resource.data.visitDate is string
+        && request.resource.data.guestsCount is int
+        && request.resource.data.guestsCount >= 1
+        && request.resource.data.guestsCount <= 8
+        && request.resource.data.totalPrice is number
+        && request.resource.data.totalPrice >= 0
+        && request.resource.data.createdAt is timestamp;
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+  }
+}
