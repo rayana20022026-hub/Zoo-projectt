@@ -34,6 +34,34 @@
   overflow-y: auto;
 }
 
+.dashboard-stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 22px; }
+.dashboard-stat-card, .admin-user-card { padding: 20px; border: 1px solid #e1e8e3; border-radius: 12px; background: #fff; }
+.dashboard-stat-card { display: grid; gap: 12px; color: #658072; }
+.dashboard-stat-card strong { color: #1a2520; font-size: 32px; }
+.admin-users-list { display: grid; gap: 10px; margin-top: 20px; }
+.admin-user-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; }
+.admin-user-card > div { display: grid; gap: 4px; min-width: 0; }
+.admin-user-card span, .admin-user-card small { color: #71847a; overflow-wrap: anywhere; }
+.admin-user-card > b { align-self: start; color: #486d51; white-space: nowrap; }
+.admin-user-history { grid-column: 1 / -1; }
+.admin-user-actions { display: grid; justify-items: end; gap: 9px; }
+.admin-user-reset { padding: 7px 9px; border: 1px solid #d4e2ce; border-radius: 7px; color: #486d51; background: #f5faf2; font-size: 10px; font-weight: 700; cursor: pointer; }
+.admin-user-reset:hover:not(:disabled) { background: #eaf4e5; }
+.admin-user-reset:disabled { opacity: .6; cursor: wait; }
+.admin-user-reset-message { margin-top: 10px; color: #486d51; }
+.admin-user-delete { display: inline-flex; align-items: center; gap: 6px; padding: 7px 9px; border: 1px solid #efc9c4; border-radius: 7px; color: #a43e34; background: #fff8f6; font-size: 10px; font-weight: 700; cursor: pointer; }
+.admin-user-delete:hover:not(:disabled) { background: #ffebe7; }
+.admin-user-delete:disabled { opacity: .6; cursor: wait; }
+.admin-user-error { color: #a43e34; }
+@media (max-width: 680px) {
+  .dashboard-stat-grid { grid-template-columns: 1fr; gap: 10px; }
+  .dashboard-stat-card { padding: 15px; }
+  .dashboard-stat-card strong { font-size: 26px; }
+  .admin-user-card { grid-template-columns: 1fr; padding: 15px; }
+  .admin-user-actions { justify-items: start; }
+  .admin-user-history { grid-column: auto; }
+}
+
 /* ─── Full-screen states ─────────────────────────────────────── */
 .adm-fullscreen-center {
   display: flex;

@@ -4,7 +4,6 @@ import HeroSection from '../components/HeroSection.jsx'
 import HomeIntro from '../components/HomeIntro.jsx'
 import QuickLinks from '../components/QuickLinks.jsx'
 import ReviewsSection from '../components/ReviewsSection.jsx'
-import StatsBlock from '../components/StatsBlock.jsx'
 
 export default function Home() {
   const { t } = useLanguage()
@@ -12,8 +11,6 @@ export default function Home() {
   return (
     <main className="home-page">
       <HeroSection t={t} />
-      <StatsBlock t={t} />
-
       <section className="home-intro section-wrap">
         <HomeIntro t={t} />
         <BenefitsGrid t={t} />

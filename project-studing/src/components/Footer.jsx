@@ -36,7 +36,7 @@ export default function Footer() {
           )}
         </div>
       </div>
-      <div className="section-wrap footer-bottom"><span>© {new Date().getFullYear()} WILDHAVEN</span><span>{t('footerLegal')}</span><Link to="/">{t('backToTop')} ↑</Link></div>
+      <div className="section-wrap footer-bottom"><span>© {new Date().getFullYear()} WILDHAVEN</span><span>{t('footerLegal')}</span></div>
     </footer>
   )
 }

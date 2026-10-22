@@ -6,7 +6,7 @@ import { languages } from '../data/zooData.js'
 import useLanguage from '../context/useLanguage.js'
 import ThemeToggle from './ThemeToggle.jsx'
 
-export default function Header({ onBook, user, onLogin, onSignOut }) {
+export default function Header({ onBook, user, onLogin, onSignOut, onMyTickets }) {
   const { language, setLanguage, t } = useLanguage()
   const [menuOpen, setMenuOpen] = useState(false)
   return (
@@ -48,6 +48,7 @@ export default function Header({ onBook, user, onLogin, onSignOut }) {
         <ThemeToggle />
         {user ? (
           <div className="header-account">
+            <button className="header-login-button header-tickets-button" onClick={onMyTickets} type="button">Мои билеты</button>
             <span className="header-user-name">{user.displayName || user.email?.split('@')[0]}</span>
             <button aria-label={t('authLogout')} className="header-logout-button" onClick={onSignOut} title={t('authLogout')} type="button"><LogOut size={15} /></button>
           </div>

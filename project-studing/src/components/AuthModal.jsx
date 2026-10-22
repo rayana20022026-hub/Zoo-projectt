@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Leaf, LockKeyhole, X } from 'lucide-react'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { doc, getDoc, increment, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
 import useLanguage from '../context/useLanguage.js'
-import { auth } from '../firebase.js'
+import { auth, db } from '../firebase.js'
+import PhoneInput from './PhoneInput.jsx'
 
 function getAuthErrorMessage(error, t) {
   const errorMessages = {
@@ -32,8 +34,8 @@ export default function AuthModal({ onClose, onAuthenticated }) {
   async function authenticate(event, register = false) {
     event.preventDefault()
     setErrorMessage('')
-    if (register && !/^\+996\d{9}$/.test(phone)) {
-      setErrorMessage('Введите номер в формате +996 и 9 цифр.')
+    if (register && !/^\+\d{7,12}$/.test(phone)) {
+      setErrorMessage('Введите корректный номер с кодом страны.')
       return
     }
     setSubmitting(true)
@@ -43,8 +45,16 @@ export default function AuthModal({ onClose, onAuthenticated }) {
       if (register) {
         const credential = await createUserWithEmailAndPassword(auth, normalizedEmail, password)
         await updateProfile(credential.user, { displayName: displayName.trim() })
+        await setDoc(doc(db, 'users', credential.user.uid), { uid: credential.user.uid, fullName: displayName.trim(), email: normalizedEmail, phone, createdAt: serverTimestamp(), lastLoginAt: serverTimestamp(), loginCount: 1 })
       } else {
-        await signInWithEmailAndPassword(auth, normalizedEmail, password)
+        const credential = await signInWithEmailAndPassword(auth, normalizedEmail, password)
+        const profileRef = doc(db, 'users', credential.user.uid)
+        const profile = await getDoc(profileRef).catch(() => null)
+        if (profile?.exists()) {
+          await updateDoc(profileRef, { lastLoginAt: serverTimestamp(), loginCount: increment(1) }).catch(() => {})
+        } else {
+          await setDoc(profileRef, { uid: credential.user.uid, fullName: credential.user.displayName || '', email: credential.user.email || normalizedEmail, phone: '', createdAt: serverTimestamp(), lastLoginAt: serverTimestamp(), loginCount: 1 }).catch(() => {})
+        }
       }
       onAuthenticated()
     } catch (error) {
@@ -98,18 +108,7 @@ export default function AuthModal({ onClose, onAuthenticated }) {
           {isRegistering && (
             <label>
               <span>Телефон</span>
-              <input
-                autoComplete="off"
-                disabled={submitting}
-                inputMode="tel"
-                maxLength={13}
-                onChange={(event) => setPhone(event.target.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, ''))}
-                pattern="\+996[0-9]{9}"
-                placeholder="+996555123456"
-                required
-                type="tel"
-                value={phone}
-              />
+              <PhoneInput disabled={submitting} onChange={setPhone} value={phone} />
             </label>
           )}
           <label>

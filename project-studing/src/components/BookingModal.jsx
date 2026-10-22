@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Loader, Ticket, X } from 'lucide-react'
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { formatKgs } from '../data/zooData.js'
 import useLanguage from '../context/useLanguage.js'
 import { auth, db } from '../firebase.js'
 import { sendTelegram, formatBookingMessage } from '../lib/telegram.js'
 import BookingReceipt from './BookingReceipt.jsx'
 import BookingSummary from './BookingSummary.jsx'
+import PhoneInput from './PhoneInput.jsx'
 
 /* ─── helpers ─────────────────────────────────────────────── */
 
@@ -37,6 +38,15 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
     ...INITIAL_FORM,
     fullName: auth.currentUser?.displayName ?? '',
   })
+  useEffect(() => {
+    const currentUser = auth.currentUser
+    if (!currentUser) return
+    getDoc(doc(db, 'users', currentUser.uid)).then((profile) => {
+      if (!profile.exists()) return
+      const data = profile.data()
+      setForm((current) => ({ ...current, fullName: current.fullName || data.fullName || currentUser.displayName || '', phone: current.phone || data.phone || '' }))
+    }).catch(() => {})
+  }, [])
 
   const [ticketId,       setTicketId]       = useState('')
   const [receiptTotal,   setReceiptTotal]   = useState(0)
@@ -65,7 +75,7 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
     setBookingError('')
 
     // Валидация телефона
-    if (!/^\+996\d{9}$/.test(form.phone)) {
+    if (!/^\+\d{7,12}$/.test(form.phone)) {
       setPhoneError(t('invalidPhone'))
       return
     }
@@ -83,7 +93,9 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
 
     const bookingData = {
       ticketId:    requestId,
+      userId:      user.uid,
       tourId:      tour.id ?? null,
+      userEmail:   user.email ?? null,
       tourTitle,
       tourPrice:   tour.price,
       clientName:  form.fullName.trim(),
@@ -91,8 +103,6 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
       visitDate:   form.date,
       guestsCount,
       totalPrice:  calculatedTotal,
-      userId:      user.uid,
-      userEmail:   user.email ?? null,
       status:      'pending',
     }
 
@@ -103,6 +113,10 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
         ...bookingData,
         createdAt: serverTimestamp(),
       })
+      const profileRef = doc(db, 'users', user.uid)
+      const profile = await getDoc(profileRef).catch(() => null)
+      const contact = { uid: user.uid, fullName: form.fullName.trim(), email: user.email ?? null, phone: form.phone.trim() }
+      await setDoc(profileRef, profile?.exists() ? contact : { ...contact, createdAt: serverTimestamp(), lastLoginAt: serverTimestamp(), loginCount: 1 }, { merge: true }).catch(() => {})
 
       // Шаг 2 — отправляем уведомление в Telegram
       setStatus('sending')
@@ -224,20 +238,7 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
 
               <label className="form-field form-field-full">
                 <span>{t('phone')}</span>
-                <input
-                autoComplete="off"
-                  inputMode="tel"
-                maxLength={13}
-                  name="phone"
-                  onChange={(event) => {
-                    const value = event.target.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')
-                    updateField({ target: { name: 'phone', value } })
-                  }}
-                  placeholder="+996555123456"
-                  pattern="\+996[0-9]{9}"
-                  required
-                  value={form.phone}
-                />
+                <PhoneInput value={form.phone} onChange={(value) => updateField({ target: { name: 'phone', value } })} />
                 {phoneError && <small className="field-error">{phoneError}</small>}
               </label>
 

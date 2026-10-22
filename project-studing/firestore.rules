@@ -12,6 +12,16 @@ service cloud.firestore {
       allow list, create, update, delete: if false;
     }
 
+    match /users/{uid} {
+      allow create: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.uid == uid
+        && request.resource.data.keys().hasOnly(['uid', 'fullName', 'email', 'phone', 'createdAt', 'lastLoginAt', 'loginCount']);
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLoginAt', 'loginCount', 'fullName', 'phone']);
+      allow delete: if isAdmin();
+    }
+
     match /animals/{animalId} {
       allow read: if true;
       allow write: if isAdmin();
@@ -44,9 +54,10 @@ service cloud.firestore {
     match /bookings/{bookingId} {
       allow create: if request.auth != null
         && request.resource.data.keys().hasOnly([
-          'tourTitle', 'clientName', 'clientPhone', 'visitDate',
-          'guestsCount', 'totalPrice', 'createdAt'
+          'ticketId', 'tourId', 'tourTitle', 'tourPrice', 'clientName', 'clientPhone', 'visitDate',
+          'guestsCount', 'totalPrice', 'userId', 'userEmail', 'status', 'createdAt'
         ])
+        && request.resource.data.userId == request.auth.uid
         && request.resource.data.tourTitle is string
         && request.resource.data.clientName is string
         && request.resource.data.clientName.size() > 0
@@ -58,7 +69,7 @@ service cloud.firestore {
         && request.resource.data.totalPrice is number
         && request.resource.data.totalPrice >= 0
         && request.resource.data.createdAt is timestamp;
-      allow read: if isAdmin();
+      allow read: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
       allow update, delete: if false;
     }
   }

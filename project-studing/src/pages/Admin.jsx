@@ -16,6 +16,7 @@ import {
   setDoc,
   updateDoc,
 } from 'firebase/firestore'
+import { httpsCallable } from 'firebase/functions'
 import {
   AlertCircle,
   BookOpen,
@@ -43,7 +44,7 @@ import {
   Users,
   X,
 } from 'lucide-react'
-import { auth, db } from '../firebase.js'
+import { auth, db, functions } from '../firebase.js'
 import useLanguage from '../context/useLanguage.js'
 import './Admin.css'
 
@@ -880,9 +881,11 @@ function ReviewsAdminSection({ toast }) {
 /* ─── Sidebar ────────────────────────────────────────────────── */
 
 const NAV = [
+  { id: 'dashboard', label: 'Dashboard', icon: Database },
   { id: 'animals',  label: 'Животные',    icon: Globe },
   { id: 'tours',    label: 'Туры',        icon: Ticket },
   { id: 'bookings', label: 'Бронирования', icon: CalendarDays },
+  { id: 'users', label: 'Пользователи', icon: Users },
   { id: 'reviews',  label: 'navReviews', icon: MessageSquare },
 ]
 
@@ -964,6 +967,8 @@ export default function Admin() {
       <Toast toasts={toasts} remove={removeToast} />
       <Sidebar active={section} onNav={setSection} user={user} onLogout={logout} t={t} />
       <main className="adm-main">
+        {section === 'dashboard' && <DashboardSection />}
+        {section === 'users' && <UsersSection />}
         {section === 'animals'  && <AnimalsSection  toast={addToast} />}
         {section === 'tours'    && <ToursSection    toast={addToast} />}
         {section === 'bookings' && <BookingsSection toast={addToast} />}
@@ -971,4 +976,54 @@ export default function Admin() {
       </main>
     </div>
   )
+}
+
+function DashboardSection() {
+  const [stats, setStats] = useState({ animals: 0, tours: 0, bookings: 0 })
+  useEffect(() => { Promise.all(['animals', 'tours', 'bookings'].map((name) => getDocs(collection(db, name)))).then(([animals, tours, bookings]) => setStats({ animals: animals.size, tours: tours.size, bookings: bookings.size })).catch(() => {}) }, [])
+  return <section className="section-wrap"><div className="section-topbar"><div><h1 className="section-title">Dashboard</h1><p className="section-sub">Сводная статистика зоопарка</p></div></div><div className="dashboard-stat-grid">{[['Животные', stats.animals], ['Туры', stats.tours], ['Бронирования', stats.bookings]].map(([label, count]) => <article className="dashboard-stat-card" key={label}><span>{label}</span><strong>{count}</strong></article>)}</div></section>
+}
+
+function UsersSection() {
+  const [users, setUsers] = useState([])
+  const [bookings, setBookings] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState('')
+  const [deleteError, setDeleteError] = useState('')
+  const [resetMessage, setResetMessage] = useState('')
+  const [resettingId, setResettingId] = useState('')
+  useEffect(() => { Promise.all([getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc'))), getDocs(query(collection(db, 'bookings'), orderBy('createdAt', 'desc')))]).then(([userSnap, bookingSnap]) => { setUsers(userSnap.docs.map((item) => ({ id: item.id, ...item.data() }))); setBookings(bookingSnap.docs.map((item) => item.data())) }).catch(() => {}).finally(() => setLoading(false)) }, [])
+  async function removeUser(person) {
+    if (!window.confirm(`Удалить аккаунт ${person.email || person.fullName || person.uid}? Все его бронирования также будут удалены.`)) return
+    setDeletingId(person.id)
+    setDeleteError('')
+    try {
+      await httpsCallable(functions, 'deleteCustomerAccount')({ uid: person.uid })
+      setUsers((current) => current.filter((user) => user.id !== person.id))
+      setBookings((current) => current.filter((booking) => booking.userId !== person.uid))
+    } catch (error) {
+      console.error('Could not delete customer account.', error)
+      setDeleteError('Не удалось удалить пользователя. Проверьте, что Cloud Function развернута и у вас есть права администратора.')
+    } finally {
+      setDeletingId('')
+    }
+  }
+  async function sendResetLink(person) {
+    if (!person.email) {
+      setResetMessage('У пользователя не указан email для сброса пароля.')
+      return
+    }
+    setResettingId(person.id)
+    setResetMessage('')
+    try {
+      await sendPasswordResetEmail(auth, person.email)
+      setResetMessage(`Ссылка для смены пароля отправлена на ${person.email}.`)
+    } catch (error) {
+      console.error('Could not send customer password reset email.', error)
+      setResetMessage('Не удалось отправить ссылку. Проверьте настройки Firebase Authentication.')
+    } finally {
+      setResettingId('')
+    }
+  }
+  return <section className="section-wrap"><div className="section-topbar"><div><h1 className="section-title">Пользователи</h1><p className="section-sub">История зарегистрированных клиентов и их бронирований</p></div></div>{deleteError && <p className="admin-user-error" role="alert">{deleteError}</p>}{resetMessage && <p className="admin-user-reset-message" role="status">{resetMessage}</p>}{loading ? <p>Загрузка…</p> : <div className="admin-users-list">{users.map((person) => { const own = bookings.filter((item) => item.userId === person.uid); return <article className="admin-user-card" key={person.id}><div><strong>{person.fullName || 'Без имени'}</strong><span>{person.email || '—'} · {person.phone || 'Телефон не указан'}</span><small>Регистрация: {fmtDate(person.createdAt)} · Последний вход: {fmtDate(person.lastLoginAt)} · Входов: {person.loginCount || 1}</small></div><div className="admin-user-actions"><b>{own.length} бронир.</b><button className="admin-user-reset" disabled={resettingId === person.id || !person.email} onClick={() => sendResetLink(person)} type="button">{resettingId === person.id ? 'Отправка…' : 'Сбросить пароль'}</button><button className="admin-user-delete" disabled={deletingId === person.id} onClick={() => removeUser(person)} type="button"><Trash2 size={14} />{deletingId === person.id ? 'Удаление…' : 'Удалить пользователя'}</button></div>{own.length > 0 && <small className="admin-user-history">{own.map((item) => `${item.tourTitle || 'Тур'} — ${item.visitDate}`).join(' · ')}</small>}</article> })}{users.length === 0 && <p>Пользователей пока нет.</p>}</div>}</section>
 }

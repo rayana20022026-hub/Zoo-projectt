@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase-admin/app'
+import { getAuth } from 'firebase-admin/auth'
 import { FieldValue, getFirestore } from 'firebase-admin/firestore'
 import { defineSecret } from 'firebase-functions/params'
 import { HttpsError, onCall } from 'firebase-functions/v2/https'
@@ -110,3 +111,33 @@ export const createBooking = onCall(
     return { ticketId, total }
   },
 )
+
+export const deleteCustomerAccount = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Требуется вход администратора.')
+
+  const adminProfile = await database.collection('admins').doc(request.auth.uid).get()
+  if (!adminProfile.exists) throw new HttpsError('permission-denied', 'Только администратор может удалять аккаунты.')
+
+  const uid = request.data?.uid
+  if (typeof uid !== 'string' || uid.length < 1 || uid === request.auth.uid) {
+    throw new HttpsError('invalid-argument', 'Некорректный идентификатор пользователя.')
+  }
+
+  const userProfile = database.collection('users').doc(uid)
+  const bookings = await database.collection('bookings').where('userId', '==', uid).get()
+  for (let offset = 0; offset < bookings.docs.length; offset += 450) {
+    const batch = database.batch()
+    bookings.docs.slice(offset, offset + 450).forEach((booking) => batch.delete(booking.ref))
+    await batch.commit()
+  }
+
+  await userProfile.delete()
+  try {
+    await getAuth().deleteUser(uid)
+  } catch (error) {
+    if (error.code !== 'auth/user-not-found') {
+      throw new HttpsError('internal', 'Данные удалены, но аккаунт Firebase Authentication удалить не удалось.')
+    }
+  }
+  return { uid, deletedBookings: bookings.size }
+})

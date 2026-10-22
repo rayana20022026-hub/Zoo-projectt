@@ -9,6 +9,7 @@ import Header from './Header.jsx'
 import Footer from './Footer.jsx'
 import AuthModal from './AuthModal.jsx'
 import BookingModal from './BookingModal.jsx'
+import MyTicketsModal from './MyTicketsModal.jsx'
 import '../pages/Home.css'
 
 export default function SiteLayout() {
@@ -17,6 +18,7 @@ export default function SiteLayout() {
   const [authLoading, setAuthLoading] = useState(true)
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [selectedTour, setSelectedTour] = useState(null)
+  const [ticketsOpen, setTicketsOpen] = useState(false)
   const pendingTourRef = useRef(null)
   const defaultTour = liveTours.find((tour) => tour.featured) ?? liveTours[0]
 
@@ -73,7 +75,7 @@ export default function SiteLayout() {
 
   return (
     <div className="zoo-app">
-      <Header onBook={openBooking} onLogin={() => setAuthModalOpen(true)} onSignOut={logOut} user={user} />
+      <Header onBook={openBooking} onLogin={() => setAuthModalOpen(true)} onSignOut={logOut} onMyTickets={() => setTicketsOpen(true)} user={user} />
       <Outlet />
       <Footer />
       <AnimatePresence>
@@ -85,6 +87,7 @@ export default function SiteLayout() {
             onAuthenticated={continueAfterAuthentication}
           />
         )}
+        {ticketsOpen && user && <MyTicketsModal onClose={() => setTicketsOpen(false)} user={user} />}
       </AnimatePresence>
     </div>
   )
