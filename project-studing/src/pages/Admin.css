@@ -508,6 +508,15 @@
   box-shadow: 0 0 0 3px #3d7a5222;
 }
 
+.afield select.tour-category-select {
+  border-color: #365442;
+  color: #e2eee4;
+  background-color: #17271e;
+  color-scheme: dark;
+}
+.afield select.tour-category-select option { color: #e2eee4; background: #17271e; }
+.afield select.tour-category-select:focus { border-color: #a8ce75; box-shadow: 0 0 0 3px rgba(168, 206, 117, 0.18); }
+
 .afield textarea { resize: vertical; min-height: 90px; }
 
 .afield-error {

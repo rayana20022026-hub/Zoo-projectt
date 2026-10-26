@@ -138,6 +138,8 @@ function Field({ label, icon: Icon, error, children }) {
 /* ─── StatusBadge ────────────────────────────────────────────── */
 
 const STATUS_MAP = {
+  'awaiting-payment': { label: 'Ожидает оплаты', color: 'badge-warn' },
+  paid:         { label: 'Оплачено',    color: 'badge-ok' },
   pending:     { label: 'Ожидает',    color: 'badge-warn' },
   confirmed:   { label: 'Подтверждено', color: 'badge-ok' },
   cancelled:   { label: 'Отменено',   color: 'badge-err' },
@@ -467,7 +469,7 @@ function AnimalsSection({ toast }) {
 
 /* ─── Tours section ──────────────────────────────────────────── */
 
-const EMPTY_TOUR = { name: '', price: '', duration: '', schedule: '', description: '', titleTranslations: { ru: '' }, descriptionTranslations: { ru: '' } }
+const EMPTY_TOUR = { name: '', price: '', duration: '', schedule: '', category: 'family', description: '', titleTranslations: { ru: '' }, descriptionTranslations: { ru: '' } }
 
 function ToursSection({ toast }) {
   const [docs, setDocs]         = useState([])
@@ -492,13 +494,27 @@ function ToursSection({ toast }) {
   useEffect(() => { load() }, [load])
 
   function openNew()     { setForm(EMPTY_TOUR); setErrors({}); setModal('new') }
-  function openEdit(doc) { setForm({ ...EMPTY_TOUR, ...doc, titleTranslations: { ru: doc.name ?? doc.title ?? '', ...(doc.titleTranslations ?? {}) }, descriptionTranslations: { ru: doc.description ?? '', ...(doc.descriptionTranslations ?? {}) }, price: String(doc.price ?? ''), duration: String(doc.durationMinutes ?? '') }); setErrors({}); setModal(doc) }
+  function openEdit(doc) {
+    const inferredCategory = doc.id === 'keeper'
+      ? 'vip'
+      : doc.includes?.includes('familyWelcome')
+        ? 'family'
+        : doc.includes?.includes('feedingExperience')
+          ? 'feeding'
+          : doc.featured
+            ? 'popular'
+            : 'family'
+    setForm({ ...EMPTY_TOUR, ...doc, category: doc.category ?? doc.categoryKey ?? inferredCategory, titleTranslations: { ru: doc.name ?? doc.title ?? '', ...(doc.titleTranslations ?? {}) }, descriptionTranslations: { ru: doc.description ?? '', ...(doc.descriptionTranslations ?? {}) }, price: String(doc.price ?? ''), duration: String(doc.durationMinutes ?? '') })
+    setErrors({})
+    setModal(doc)
+  }
 
   function validate() {
     const e = {}
     if (!(form.titleTranslations?.ru ?? form.name).trim()) e.name = 'Введите название на русском'
     if (!(form.descriptionTranslations?.ru ?? form.description).trim()) e.description = 'Введите описание на русском'
     if (!form.price || isNaN(Number(form.price)) || Number(form.price) < 0) e.price = 'Введите корректную цену'
+    if (!['family', 'vip', 'feeding', 'popular'].includes(form.category)) e.category = 'Выберите категорию тура'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -512,6 +528,7 @@ function ToursSection({ toast }) {
         titleTranslations: Object.fromEntries(Object.entries(form.titleTranslations ?? {}).map(([lang, value]) => [lang, value.trim()])),
         price:           Number(form.price),
         durationMinutes: form.duration ? Number(form.duration) : null,
+        category:        form.category,
         schedule:        form.schedule.trim(),
         description:     (form.descriptionTranslations?.ru ?? form.description).trim(),
         descriptionTranslations: Object.fromEntries(Object.entries(form.descriptionTranslations ?? {}).map(([lang, value]) => [lang, value.trim()])),
@@ -611,6 +628,14 @@ function ToursSection({ toast }) {
             <Field label="Длительность (мин)" icon={Clock}>
               <input {...f('duration')} type="number" min="0" placeholder="90" />
             </Field>
+            <Field label="Категория *" icon={Tag} error={errors.category}>
+              <select className="tour-category-select" {...f('category')}>
+                <option value="family">Семейные</option>
+                <option value="vip">VIP-тур</option>
+                <option value="feeding">С кормлением</option>
+                <option value="popular">Популярные</option>
+              </select>
+            </Field>
             <Field label="Расписание" icon={CalendarDays}>
               <input {...f('schedule')} placeholder="Пн–Вс, 09:00–18:00" />
             </Field>
@@ -640,7 +665,7 @@ function ToursSection({ toast }) {
 
 /* ─── Bookings section ───────────────────────────────────────── */
 
-const BOOKING_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled']
+const BOOKING_STATUSES = ['awaiting-payment', 'paid', 'pending', 'confirmed', 'completed', 'cancelled']
 
 function BookingsSection({ toast }) {
   const [docs, setDocs]         = useState([])

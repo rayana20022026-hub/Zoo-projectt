@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Loader, Ticket, X } from 'lucide-react'
-import { addDoc, collection, doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { ArrowLeft, Loader, Phone, Ticket, X } from 'lucide-react'
+import { addDoc, collection, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
+import { ref, uploadBytes } from 'firebase/storage'
 import { formatKgs } from '../data/zooData.js'
 import useLanguage from '../context/useLanguage.js'
-import { auth, db } from '../firebase.js'
+import { auth, db, storage } from '../firebase.js'
 import { sendTelegram, formatBookingMessage } from '../lib/telegram.js'
 import BookingReceipt from './BookingReceipt.jsx'
 import BookingSummary from './BookingSummary.jsx'
@@ -31,7 +32,7 @@ const INITIAL_FORM = { fullName: '', phone: '', date: getDefaultDate(), guests: 
 
 /* ─── Component ───────────────────────────────────────────── */
 
-export default function BookingModal({ tour, tours = [], onTourChange, onClose }) {
+export default function BookingModal({ tour, tours = [], onTourChange, onClose, onPaymentComplete }) {
   const { language, t } = useLanguage()
 
   const [form, setForm] = useState({
@@ -49,6 +50,8 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
   }, [])
 
   const [ticketId,       setTicketId]       = useState('')
+  const [paymentBooking, setPaymentBooking] = useState(null)
+  const [paymentProof, setPaymentProof] = useState(null)
   const [receiptTotal,   setReceiptTotal]   = useState(0)
   const [requestId]                         = useState(createTicketId)
   const [phoneError,     setPhoneError]     = useState('')
@@ -103,13 +106,13 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
       visitDate:   form.date,
       guestsCount,
       totalPrice:  calculatedTotal,
-      status:      'pending',
+      status:      'awaiting-payment',
     }
 
     try {
       // Шаг 1 — сохраняем в Firestore
       setStatus('saving')
-      await addDoc(collection(db, 'bookings'), {
+      const bookingRef = await addDoc(collection(db, 'bookings'), {
         ...bookingData,
         createdAt: serverTimestamp(),
       })
@@ -118,28 +121,48 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
       const contact = { uid: user.uid, fullName: form.fullName.trim(), email: user.email ?? null, phone: form.phone.trim() }
       await setDoc(profileRef, profile?.exists() ? contact : { ...contact, createdAt: serverTimestamp(), lastLoginAt: serverTimestamp(), loginCount: 1 }, { merge: true }).catch(() => {})
 
-      // Шаг 2 — отправляем уведомление в Telegram
-      setStatus('sending')
-      const tgResult = await sendTelegram(formatBookingMessage(bookingData))
-      if (!tgResult.ok) {
-        // Уведомление не доставлено, но бронирование уже сохранено в Firestore.
-        // Показываем жёлтое предупреждение — не критическую ошибку.
-        setTelegramWarn(
-          tgResult.status === 403
-            ? 'Уведомление в Telegram не отправлено: бот не может писать по этому Chat ID. Напишите боту /start в Telegram и обновите VITE_TELEGRAM_CHAT_ID в .env.'
-            : `Уведомление в Telegram не доставлено: ${tgResult.description}. Заявка сохранена.`,
-        )
-      }
-
-      // Успех
-      setReceiptTotal(calculatedTotal)
-      setTicketId(requestId)
-      setForm({ ...INITIAL_FORM, fullName: form.fullName })
+      setPaymentBooking({ bookingRef, bookingData })
     } catch (error) {
       console.error('Could not save the booking.', error)
       setBookingError(
         error.message || 'Не удалось отправить заявку. Попробуйте ещё раз.',
       )
+    } finally {
+      setStatus('idle')
+    }
+  }
+
+  async function confirmPayment() {
+    if (!paymentBooking || isBusy) return
+    setBookingError('')
+    setStatus('saving')
+    try {
+      const paidBooking = { ...paymentBooking.bookingData, status: 'paid' }
+      let paymentProofPath = null
+      if (paymentProof) {
+        if (!paymentProof.type.startsWith('image/') || paymentProof.size > 5 * 1024 * 1024) {
+          throw new Error('Загрузите изображение чека размером не более 5 МБ.')
+        }
+        const proofRef = ref(storage, `payment-proofs/${auth.currentUser.uid}/${paymentBooking.bookingRef.id}/${crypto.randomUUID()}`)
+        await uploadBytes(proofRef, paymentProof, { contentType: paymentProof.type })
+        paymentProofPath = proofRef.fullPath
+      }
+      await updateDoc(paymentBooking.bookingRef, {
+        status: 'paid',
+        paidAt: serverTimestamp(),
+        paymentMethod: 'MBank QR',
+        ...(paymentProofPath ? { paymentProofPath } : {}),
+      })
+      setReceiptTotal(paidBooking.totalPrice)
+      setTicketId(paidBooking.ticketId)
+      setForm((current) => ({ ...INITIAL_FORM, fullName: current.fullName }))
+      onPaymentComplete?.()
+      sendTelegram(formatBookingMessage(paidBooking)).then((tgResult) => {
+        if (!tgResult.ok) console.warn('Ticket is paid, but Telegram did not deliver the notice:', tgResult.description)
+      }).catch((error) => console.warn('Ticket is paid, but Telegram notification failed.', error))
+    } catch (error) {
+      console.error('Could not confirm ticket payment.', error)
+      setBookingError(error.message || 'Could not confirm payment. Please try again.')
     } finally {
       setStatus('idle')
     }
@@ -166,7 +189,7 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
         animate={{ opacity: 1, y: 0, scale: 1 }}
         aria-labelledby="booking-title"
         aria-modal="true"
-        className={`booking-dialog ${ticketId ? 'ticket-dialog' : ''}`}
+        className={`booking-dialog ${ticketId ? 'ticket-dialog' : ''} ${paymentBooking ? 'payment-dialog' : ''}`}
         exit={{ opacity: 0, y: 16, scale: 0.98 }}
         initial={{ opacity: 0, y: 16, scale: 0.98 }}
         onClick={(event) => event.stopPropagation()}
@@ -174,7 +197,7 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
         transition={{ duration: 0.24 }}
       >
         {/* Шапка */}
-        <div className="booking-dialog-header">
+        <div className={`booking-dialog-header ${paymentBooking ? 'payment-dialog-header' : ''}`}>
           <span className="dialog-step-mark">
             {ticketId ? <Ticket size={19} /> : '01 / 01'}
           </span>
@@ -183,7 +206,7 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
               {ticketId ? t('bookingReceipt') : t('bookingStep')}
             </span>
             <h2 id="booking-title">
-              {ticketId ? t('ticketTitle') : t('bookingTitle')}
+              {paymentBooking ? 'Оплата билета' : ticketId ? t('ticketTitle') : t('bookingTitle')}
             </h2>
           </div>
           <button
@@ -197,7 +220,22 @@ export default function BookingModal({ tour, tours = [], onTourChange, onClose }
         </div>
 
         {/* Форма / Квитанция */}
-        {!ticketId ? (
+        {paymentBooking ? (
+          <div className="payment-content">
+            <p className="payment-instruction">Отсканируйте QR-код в MBank и оплатите <strong>{formatKgs(paymentBooking.bookingData.totalPrice, language)} KGS</strong></p>
+            <img className="payment-qr" src="/qr-code.png" alt="QR-код для оплаты через MBank" />
+            <p className="payment-recipient"><Phone aria-hidden="true" size={17} /><strong>MBank: +996 (770) 250 411 (РАЯНА А.)</strong></p>
+            <p className="payment-hint">После перевода нажмите кнопку ниже, чтобы перейти к вашим билетам.</p>
+            <label className="form-field payment-proof-field">
+              <span>Чек или скриншот оплаты (необязательно)</span>
+              <input accept="image/*" disabled={isBusy} onChange={(event) => setPaymentProof(event.target.files?.[0] ?? null)} type="file" />
+            </label>
+            {bookingError && <p className="field-error" role="alert">{bookingError}</p>}
+            {telegramWarn && <p className="field-warn" role="status">{telegramWarn}</p>}
+            <button className="booking-primary-button payment-submit" disabled={isBusy} onClick={confirmPayment} type="button">{isBusy ? <><Loader size={15} className="btn-spin" /> Сохраняем оплату…</> : 'Билет'}</button>
+            <button className="auth-register-button payment-back" disabled={isBusy} onClick={() => setPaymentBooking(null)} type="button">Назад к бронированию</button>
+          </div>
+        ) : !ticketId ? (
           <div>
             <p className="booking-intro">{t('bookingSubtitle')}</p>
 

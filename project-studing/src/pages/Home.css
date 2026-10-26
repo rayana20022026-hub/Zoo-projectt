@@ -169,9 +169,36 @@
 
 .tours-section { padding: 108px 0 104px; background: var(--surface-soft); }
 .tours-heading { margin-bottom: 39px; }
+.tours-tools { display: grid; justify-items: end; gap: 10px; }
+.tour-search { display: flex; width: min(100%, 330px); min-height: 40px; align-items: center; gap: 9px; padding: 0 11px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: var(--surface); transition: border-color 160ms ease, box-shadow 160ms ease; }
+.tour-search:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(102, 142, 80, 0.12); }
+.tour-search input { width: 100%; min-width: 0; border: 0; outline: 0; color: var(--ink); background: transparent; font: inherit; font-size: 11px; }
+.tour-search input::placeholder { color: var(--muted); }
+.tour-search button { display: grid; width: 25px; height: 25px; flex: 0 0 auto; place-items: center; padding: 0; border: 0; border-radius: 50%; color: var(--muted); background: var(--surface-soft); }
+.tour-filter-list { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.tour-no-results { display: grid; min-height: 260px; justify-items: center; align-content: center; gap: 12px; padding: 30px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; }
+.tour-no-results > svg { color: var(--green); }
+.tour-no-results strong { color: var(--ink); font-family: 'Fraunces', Georgia, serif; font-size: 24px; font-weight: 500; }
+.tour-no-results > span { font-size: 12px; }
+.tour-no-results button { margin-top: 5px; }
 .tour-heading-note { display: inline-flex; align-items: center; gap: 8px; padding-bottom: 5px; color: var(--muted); font-size: 10px; font-weight: 650; white-space: nowrap; }
 .tour-note-dot { width: 7px; height: 7px; border-radius: 50%; background: #78a455; }
 .tour-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 15px; }
+.skeleton-card { overflow: hidden; }
+.skeleton-topline, .skeleton-price-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.skeleton-block { display: block; border-radius: 6px; background: #e8ece4; }
+[data-theme='dark'] .skeleton-block { background: #2a372d; }
+.skeleton-number { width: 30px; height: 12px; }
+.skeleton-icon { width: 18px; height: 18px; border-radius: 50%; }
+.skeleton-image { height: 164px; margin-top: 18px; border-radius: 7px; }
+.skeleton-title { width: 72%; height: 26px; margin-top: 20px; }
+.skeleton-copy { width: 82%; height: 10px; margin-top: 9px; }
+.skeleton-copy-long { width: 96%; margin-top: 13px; }
+.skeleton-price-row { justify-content: flex-start; margin-top: 19px; }
+.skeleton-price { width: 84px; height: 22px; }
+.skeleton-caption { width: 70px; height: 10px; }
+.skeleton-button { height: 42px; margin-top: auto; }
+.skeleton-grid .skeleton-card { min-height: 420px; }
 .tour-card { position: relative; display: flex; min-width: 0; flex-direction: column; padding: 23px 22px 20px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); box-shadow: 0 6px 20px rgba(33, 56, 37, 0.025); }
 .tour-card-featured { border-color: #94aa63; box-shadow: 0 12px 35px rgba(72, 99, 45, 0.1); }
 [data-theme='dark'] .tour-card-featured { border-color: #8cab55; box-shadow: 0 12px 40px rgba(149, 190, 78, 0.08); }
@@ -316,6 +343,10 @@
 .auth-login-button, .auth-register-button { min-height: 44px; border-radius: 7px; font-size: 11px; font-weight: 850; transition: filter 150ms ease, background 150ms ease; }
 .auth-login-button { margin-top: 3px; border: 0; color: #1d2a1b; background: #d9ed8c; }
 .auth-register-button { border: 1px solid #435b3e; color: #e8f0e1; background: #1a2a1e; }
+.auth-forgot-link { justify-self: end; min-height: 0; margin-top: -8px; padding: 0; border: 0; color: #a9bd93; background: transparent; cursor: pointer; font-size: 13px; font-weight: 500; }
+.auth-forgot-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.auth-forgot-link:disabled { cursor: wait; opacity: 0.65; }
+[data-theme='light'] .auth-forgot-link { color: var(--green); }
 .auth-login-button:hover, .auth-register-button:hover { filter: brightness(1.08); }
 .auth-login-button:disabled, .auth-register-button:disabled { cursor: wait; opacity: 0.7; }
 .animal-dialog { display: grid; grid-template-columns: 0.9fr 1.1fr; }
@@ -336,6 +367,24 @@
 .booking-title-wrap { min-width: 0; flex: 1; }
 .booking-title-wrap .section-eyebrow { font-size: 8px; }
 .booking-title-wrap h2 { margin: 3px 0 0; color: var(--ink); font-family: 'Fraunces', Georgia, serif; font-size: 25px; font-weight: 500; line-height: 1.2; }
+.payment-dialog { width: min(100%, 480px); max-height: min(94vh, 820px); padding: 23px 28px; overflow-y: auto; }
+.payment-dialog-header { position: relative; justify-content: center; padding: 0 38px 13px; }
+.payment-dialog-header .dialog-step-mark, .payment-dialog-header .section-eyebrow { display: none; }
+.payment-dialog-header .booking-title-wrap { flex: 0 1 auto; text-align: center; }
+.payment-dialog-header .booking-title-wrap h2 { margin: 0; font-size: 27px; }
+.payment-dialog-header .dialog-close-static { position: absolute; top: 50%; right: 0; transform: translateY(-50%); }
+.payment-content { display: flex; align-items: center; flex-direction: column; gap: 12px; padding-top: 14px; text-align: center; }
+.payment-instruction { max-width: 390px; margin: 0; color: var(--ink); font-size: 16px; line-height: 1.45; }
+.payment-instruction strong { display: inline-block; color: var(--green); font-size: 23px; font-weight: 850; white-space: nowrap; }
+.payment-qr { display: block; width: min(260px, 68vw, 38vh); height: auto; margin: 0 auto; padding: 10px; border: 1px solid #e6e9df; border-radius: 18px; background: #fff; box-shadow: 0 12px 30px rgba(23, 47, 34, 0.12); }
+.payment-recipient { display: flex; align-items: center; justify-content: center; gap: 9px; margin: 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; color: var(--green); background: var(--surface-soft); font-size: 13px; line-height: 1.4; }
+.payment-recipient strong { color: var(--ink); }
+.payment-hint { max-width: 360px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.payment-proof-field { width: 100%; text-align: left; }
+.payment-proof-field input { height: auto; padding: 8px; font-size: 11px; }
+.payment-content .field-error, .payment-content .field-warn { width: 100%; margin: 0; }
+.payment-submit { min-height: 49px; margin-top: 0 !important; font-size: 12px; }
+.payment-back { width: 100%; min-height: 40px; }
 .dialog-close-static { position: static; flex: 0 0 auto; border-color: var(--line); color: var(--muted); background: transparent; }
 .dialog-close-static:hover { color: var(--ink); background: var(--surface-soft); }
 .dialog-back { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: transparent; }
@@ -475,6 +524,9 @@
   .animal-card-arrow { right: 8px; bottom: 8px; width: 28px; height: 28px; }
   .tours-section { padding: 78px 0 74px; }
   .tours-heading { gap: 16px; }
+  .tours-tools { width: 100%; justify-items: stretch; }
+  .tour-search { width: 100%; }
+  .tour-filter-list { justify-content: flex-start; }
   .tour-heading-note { font-size: 9px; }
   .tour-grid { grid-template-columns: 1fr; gap: 12px; }
   .tour-card { padding: 19px; }
@@ -483,6 +535,18 @@
   .tour-meta-line { grid-template-columns: 86px minmax(0, 1fr); }
   .tour-book-button { margin-top: 18px; }
   .tour-note { line-height: 1.6; }
+  .zoo-map-page { padding: 105px 0 65px; }
+  .zoo-map-heading { margin-bottom: 22px; }
+  .zoo-map-heading h1 { font-size: 39px; }
+  .zoo-map-heading p { font-size: 11px; }
+  .zoo-map-board { padding: 24px 14px 15px; border-radius: 15px; }
+  .zoo-map-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+  .zoo-map-zone { min-height: 93px; gap: 8px; padding: 10px; }
+  .zoo-map-zone-icon { width: 34px; height: 34px; border-radius: 10px; }
+  .zoo-map-zone-icon svg { width: 17px; height: 17px; }
+  .zoo-map-zone-copy strong { font-size: 14px; }
+  .zoo-map-zone-copy small { font-size: 8px; }
+  .zoo-map-modal { padding: 28px 23px; }
   .reviews-section { padding: 78px 0; }
   .reviews-layout { grid-template-columns: 1fr; gap: 28px; }
   .reviews-intro h2 { max-width: 440px; font-size: 36px; }
@@ -516,6 +580,15 @@
   .animal-fact-row { padding: 10px 0; }
   .feeding-note { margin-top: 10px; }
   .booking-dialog { width: 100%; max-height: 93svh; padding: 21px 18px 22px; overflow-y: auto; border-radius: 13px 13px 0 0; }
+  .modal-backdrop.booking-backdrop:has(.payment-dialog) { align-items: center; padding: 10px; }
+  .payment-dialog { width: min(100%, 460px); max-height: 94svh; padding: 18px 18px 20px; border-radius: 14px; }
+  .payment-dialog-header { padding-bottom: 11px; }
+  .payment-content { gap: 9px; padding-top: 10px; }
+  .payment-instruction { font-size: 14px; }
+  .payment-instruction strong { font-size: 20px; }
+  .payment-qr { width: min(230px, 52vw, 30svh); padding: 8px; border-radius: 14px; }
+  .payment-recipient { padding: 8px 10px; font-size: 11px; }
+  .payment-hint { font-size: 10px; }
   .booking-title-wrap h2 { font-size: 22px; }
   .booking-form { gap: 10px; }
   .phone-input-group { gap: 5px; }
@@ -611,6 +684,151 @@
 }
 
 .standalone-page { min-height: 65vh; padding-top: 115px; }
+.zoo-map-page { min-height: 75vh; padding: 145px 0 90px; }
+.zoo-map-section { max-width: 1160px; }
+.zoo-map-heading { max-width: 670px; margin-bottom: 30px; }
+.zoo-map-heading h1 { margin: 14px 0 10px; color: var(--ink); font-family: 'Fraunces', Georgia, serif; font-size: clamp(38px, 5vw, 58px); font-weight: 500; line-height: 1.05; }
+.zoo-map-heading p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.zoo-map-filters { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+.zoo-map-board { position: relative; isolation: isolate; overflow: hidden; padding: 28px; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(145deg, #eaf0e4, #f5f5ed 55%, #e5eee1); box-shadow: var(--shadow); }
+[data-theme='dark'] .zoo-map-board { background: linear-gradient(145deg, #18281e, #142019 58%, #1c2d21); }
+.zoo-map-board::before { position: absolute; z-index: -1; inset: 0; background-image: radial-gradient(ellipse at 17% 20%, rgba(119, 160, 100, 0.15) 0 10%, transparent 11%), radial-gradient(ellipse at 81% 74%, rgba(119, 160, 100, 0.14) 0 13%, transparent 14%), radial-gradient(ellipse at 73% 13%, rgba(116, 170, 173, 0.13) 0 9%, transparent 10%); content: ''; }
+.zoo-map-path { position: absolute; z-index: -1; top: 50%; left: -12%; width: 124%; height: 46px; border: 1px dashed rgba(123, 151, 111, 0.48); border-radius: 50%; background: rgba(255, 255, 255, 0.28); transform: rotate(-13deg); }
+[data-theme='dark'] .zoo-map-path { border-color: rgba(151, 183, 128, 0.25); background: rgba(222, 239, 208, 0.035); }
+.zoo-map-path-cross { top: 45%; left: 36%; width: 74%; transform: rotate(61deg); }
+.zoo-map-compass { position: absolute; top: 17px; right: 20px; display: grid; justify-items: center; color: var(--muted); font-size: 9px; font-weight: 800; }
+.zoo-map-compass span { color: var(--green); font-size: 18px; line-height: 1; }
+.zoo-map-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.zoo-map-zone { position: relative; display: flex; min-height: 105px; align-items: center; gap: 11px; padding: 14px; border: 1px solid rgba(119, 145, 108, 0.25); border-radius: 13px; color: var(--ink); background: color-mix(in srgb, var(--surface) 88%, transparent); box-shadow: 0 8px 22px rgba(32, 58, 38, 0.07); cursor: pointer; text-align: left; transition: border-color 180ms ease, box-shadow 180ms ease; }
+.zoo-map-zone:hover { z-index: 2; border-color: var(--green); box-shadow: 0 14px 28px rgba(32, 58, 38, 0.14); }
+.zoo-map-zone-icon { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border-radius: 12px; color: #3f6745; background: #e3edda; }
+[data-theme='dark'] .zoo-map-zone-icon { color: #d5eea0; background: #2a3c2a; }
+.zoo-map-zone-predators .zoo-map-zone-icon { color: #a65742; background: #f6e6dc; }
+[data-theme='dark'] .zoo-map-zone-predators .zoo-map-zone-icon { color: #f1ad8c; background: #482d27; }
+.zoo-map-zone-birds .zoo-map-zone-icon { color: #417c82; background: #dcefed; }
+[data-theme='dark'] .zoo-map-zone-birds .zoo-map-zone-icon { color: #a1d7d2; background: #203b3d; }
+.zoo-map-zone-reptiles .zoo-map-zone-icon { color: #647544; background: #e8edcf; }
+[data-theme='dark'] .zoo-map-zone-reptiles .zoo-map-zone-icon { color: #c9dc8c; background: #35402a; }
+.zoo-map-zone-infrastructure .zoo-map-zone-icon { color: #8a7134; background: #f3edcf; }
+[data-theme='dark'] .zoo-map-zone-infrastructure .zoo-map-zone-icon { color: #e6d58f; background: #403c27; }
+.zoo-map-zone-rare .zoo-map-zone-icon { color: #765ca0; background: #ece5f5; }
+[data-theme='dark'] .zoo-map-zone-rare .zoo-map-zone-icon { color: #c8aceb; background: #372c46; }
+.zoo-map-zone-copy { display: grid; min-width: 0; gap: 5px; }
+.zoo-map-zone-copy strong { color: var(--ink); font-family: 'Fraunces', Georgia, serif; font-size: 16px; font-weight: 500; }
+.zoo-map-zone-copy small { color: var(--muted); font-size: 9px; line-height: 1.4; }
+.zoo-map-zone-index { position: absolute; top: 9px; right: 10px; color: var(--muted); font-size: 8px; font-weight: 750; opacity: 0.62; }
+.zoo-map-backdrop { z-index: 80; }
+.zoo-map-modal { position: relative; width: min(100%, 460px); max-height: min(88vh, 650px); overflow-y: auto; padding: 34px; border: 1px solid var(--line); border-radius: 16px; color: var(--ink); background: var(--surface); box-shadow: var(--shadow); }
+.zoo-map-modal .dialog-close-static { position: absolute; top: 13px; right: 13px; }
+.zoo-map-modal-category { display: inline-flex; padding: 6px 10px; border-radius: 999px; color: var(--green); background: var(--surface-soft); font-size: 9px; font-weight: 800; }
+.zoo-map-modal h2 { margin: 15px 42px 4px 0; color: var(--ink); font-family: 'Fraunces', Georgia, serif; font-size: 30px; font-weight: 500; }
+.zoo-map-modal-subtitle { margin: 0 0 22px; color: var(--muted); font-size: 12px; }
+.zoo-map-detail { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); color: var(--green); }
+.zoo-map-detail > span { display: grid; gap: 5px; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.zoo-map-detail strong { color: var(--ink); font-size: 11px; }
+.zoo-map-animal-list { color: var(--muted); }
+.zoo-map-modal-description { margin: 12px 0 0; padding: 13px; border-radius: 9px; color: var(--muted); background: var(--surface-soft); font-size: 11px; line-height: 1.65; }
+
+/* Interactive illustrated park map */
+.zoo-map-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; align-items: stretch; gap: 16px; }
+.zoo-map-board { min-height: 520px; padding: 0; overflow:hidden; border: 1px solid rgba(167, 190, 133, .35); border-radius: 22px; background: linear-gradient(145deg,#263d2c,#132319 74%); box-shadow: 0 20px 40px rgba(0,0,0,.4), inset 0 1px rgba(255,255,255,.16), inset 0 -8px 18px rgba(0,0,0,.25); }
+.zoo-map-canvas { position:absolute;inset:0;transform-origin:center;transition:transform .8s cubic-bezier(0.4, 0, 0.2, 1);will-change:transform; }
+.zoo-map-route { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; filter: drop-shadow(0 0 4px rgba(216,236,138,.75)); }
+.zoo-map-route-line,.zoo-map-route-glow { stroke-dasharray:12 10;stroke-dashoffset:1200;animation:draw-zoo-route 2.2s ease forwards,flow-zoo-route 1.1s linear 2.2s infinite; }
+.zoo-map-route-line { stroke:#d9ff72;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;filter:url(#routeGlow); }
+.zoo-map-route-glow { stroke:rgba(216,255,104,.28);stroke-width:17;stroke-linecap:round;filter:blur(4px); }
+.zoo-map-route-start { fill:#ffe8a3;stroke:#203725;stroke-width:4; }
+@keyframes draw-zoo-route { to { stroke-dashoffset:0; } }
+@keyframes flow-zoo-route { to { stroke-dashoffset:-22; } }
+.map-route-card { position:absolute;z-index:7;right:16px;bottom:16px;left:16px;display:flex;align-items:center;gap:11px;padding:12px 14px;border:1px solid rgba(219,238,175,.3);border-radius:15px;color:#eff4df;background:rgba(18,36,25,.91);box-shadow:0 12px 30px rgba(0,0,0,.36);backdrop-filter:blur(12px); }
+.map-route-card-icon { display:grid;width:35px;height:35px;flex:0 0 auto;place-items:center;border-radius:11px;color:#d9ff72;background:rgba(217,255,114,.12); }
+.map-route-card-copy { display:grid;min-width:0;flex:1;gap:4px; }
+.map-route-card-copy strong { font-family:'Fraunces',Georgia,serif;font-size:15px;font-weight:500; }
+.map-route-card-copy small { overflow:hidden;color:#bdc9ae;font-size:10px;text-overflow:ellipsis;white-space:nowrap; }
+.map-route-card > button { flex:0 0 auto;padding:8px 10px;border:1px solid rgba(217,255,114,.27);border-radius:9px;color:#d9ff72;background:rgba(217,255,114,.08);font-size:10px;font-weight:700;cursor:pointer; }
+.map-route-card > button:hover { color:#203021;background:#d9ff72; }
+.zoo-map-steps { display: grid; gap: 10px; margin-top: 5px; }
+.zoo-map-steps > span { display: flex; align-items: flex-start; gap: 8px; }
+.zoo-map-steps svg { flex: 0 0 auto; color: #8aa65e; }
+.zoo-map-artwork { position: absolute; inset: 0; width: 100%; height: 100%; }
+.zoo-map-compass { z-index: 2; top: 20px; right: 22px; color: #e6edcf; }
+.zoo-map-compass span { color: #d8ec8a; }
+.map-marker { position: absolute; z-index: 4; display: grid; justify-items: center; gap: 3px; margin: -23px 0 0 -23px; padding: 0; border: 0; color: #f6f4e7; background: transparent; cursor: pointer; transition:filter .2s; }
+.map-marker:hover { filter:drop-shadow(0 10px 8px rgba(0,0,0,.55)); }
+.map-marker-pin { display: grid; width: 46px; height: 46px; place-items: center; border: 2px solid rgba(242, 241, 222, .9); border-radius: 50% 50% 50% 12px; color: #e8f49d; background: linear-gradient(145deg,#557047,#1e3928 66%,#122019); box-shadow: 0 7px 18px rgba(7, 15, 10, .38), inset 0 2px 3px rgba(255,255,255,.3), inset 0 -4px 5px rgba(0,0,0,.28); transform: rotate(-45deg) rotate(var(--map-counter-rotation, 0deg)); transition: box-shadow .2s, background .2s; }
+.map-marker-pin svg { transform: rotate(45deg); }
+.map-marker:hover .map-marker-pin, .map-marker.is-selected .map-marker-pin { background: linear-gradient(145deg,#829451,#405b34); box-shadow: 0 0 0 6px rgba(218, 237, 142, .18), 0 9px 22px rgba(7, 15, 10, .45), 0 0 22px rgba(218,237,142,.42); animation:map-marker-glow 1.8s ease-in-out infinite; }
+@keyframes map-marker-glow { 50% { box-shadow:0 0 0 9px rgba(218,237,142,.08),0 11px 24px rgba(7,15,10,.5),0 0 28px rgba(218,237,142,.6); } }
+.zoo-map-controls { position:absolute;z-index:8;top:14px;left:14px;display:grid;gap:6px;padding:6px;border:1px solid rgba(240,245,225,.17);border-radius:14px;background:rgba(18,34,24,.82);box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(10px); }
+.zoo-map-controls button { display:grid;width:34px;height:34px;place-items:center;border:0;border-radius:9px;color:#e6efcf;background:rgba(255,255,255,.06);cursor:pointer; }
+.zoo-map-controls button:hover { color:#1e2b1b;background:#d8ec8a; }
+.map-marker-number { position: absolute; top: 52px; padding: 3px 7px; border: 1px solid rgba(238, 240, 218, .22); border-radius: 20px; background: rgba(20, 35, 26, .88); font-size: 9px; font-weight: 800; letter-spacing: .08em; transform: rotate(var(--map-counter-rotation, 0deg)); }
+.map-marker-tooltip { position: absolute; top: -32px; left: 50%; width: max-content; max-width: 170px; padding: 7px 10px; border: 1px solid rgba(238, 240, 218, .15); border-radius: 8px; color: #f4f1e4; background: #16271d; font-size: 11px; opacity: 0; pointer-events: none; transform: translate(-50%, 4px) rotate(var(--map-counter-rotation, 0deg)); transition: opacity .18s, transform .18s; }
+.map-marker:hover .map-marker-tooltip, .map-marker:focus-visible .map-marker-tooltip { opacity: 1; transform: translate(-50%, 0) rotate(var(--map-counter-rotation, 0deg)); }
+.zoo-map-sidebar { display: flex; min-width: 0; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }
+.zoo-map-sidebar-heading { display: grid; gap: 5px; padding: 21px 19px 16px; border-bottom: 1px solid var(--line); }
+.zoo-map-sidebar-heading span { color: var(--green); font-size: 9px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.zoo-map-sidebar-heading strong { color: var(--ink); font-family: 'Fraunces', Georgia, serif; font-size: 23px; font-weight: 500; }
+.zoo-map-sidebar-heading small { color: var(--muted); font-size: 10px; }
+.zoo-map-location { display:flex;align-items:center;gap:10px;margin:12px 14px 0;padding:11px;border:1px solid rgba(190,211,131,.2);border-radius:12px;color:#d8ec8a;background:rgba(126,153,81,.09);text-align:left;cursor:pointer; }
+.zoo-map-location span { display:grid;gap:4px; }
+.zoo-map-location strong { color:var(--ink);font-size:11px; }
+.zoo-map-location small { color:var(--muted);font-size:9px;line-height:1.4; }
+.zoo-map-zone-list { display: grid; padding: 7px; }
+.zoo-map-list-item { display: flex; min-width: 0; align-items: center; gap: 10px; padding: 10px 9px; border: 1px solid transparent; border-radius: 11px; color: var(--ink); background: transparent; cursor: pointer; text-align: left; transition: opacity .18s, background .18s, border-color .18s; }
+.zoo-map-list-item:hover, .zoo-map-list-item.is-selected { border-color: var(--line); background: var(--surface-soft); }
+.zoo-map-list-item.is-dimmed { opacity: .35; }
+.zoo-map-list-icon { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border-radius: 10px; color: #d8ec8a; background: #2a3c2a; }
+.zoo-map-list-icon.zoo-map-zone-birds { color: #a1d7d2; background: #203b3d; }
+.zoo-map-list-icon.zoo-map-zone-reptiles { color: #c9dc8c; background: #35402a; }
+.zoo-map-list-icon.zoo-map-zone-rare { color: #c8aceb; background: #372c46; }
+.zoo-map-list-icon.zoo-map-zone-infrastructure { color: #e6d58f; background: #403c27; }
+.zoo-map-list-item > span:nth-child(2) { display: grid; min-width: 0; gap: 3px; }
+.zoo-map-list-item small { color: var(--muted); font-size: 8px; font-weight: 800; letter-spacing: .1em; }
+.zoo-map-list-item strong { overflow: hidden; color: var(--ink); font-size: 11px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.zoo-map-list-arrow { margin-left: auto; color: var(--green); font-size: 14px; }
+.zoo-map-entrance { display: flex; align-items: center; gap: 10px; margin: auto 14px 14px; padding: 12px; border: 1px solid rgba(190, 211, 131, .2); border-radius: 12px; color: #d8ec8a; background: rgba(126, 153, 81, .09); }
+.zoo-map-entrance span { display: grid; gap: 4px; }
+.zoo-map-entrance strong { color: var(--ink); font-size: 11px; }
+.zoo-map-entrance small { color: var(--muted); font-size: 9px; }
+@media (max-width: 900px) { .zoo-map-layout { grid-template-columns: 1fr; } .zoo-map-board { min-height: min(68vw, 510px); } .zoo-map-zone-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } .zoo-map-sidebar-heading { padding-bottom: 13px; } .zoo-map-entrance { margin-top: 2px; } }
+@media (max-width: 560px) { .zoo-map-board { min-height: 370px; } .map-marker-pin { width: 38px; height: 38px; } .map-marker-pin svg { width: 15px; height: 15px; } .map-marker-number { top: 43px; font-size: 8px; } .zoo-map-zone-list { grid-template-columns: 1fr; } }
+@media (max-width:560px) { .map-route-card { right:8px;bottom:8px;left:8px;padding:9px;gap:8px; } .map-route-card-copy strong {font-size:12px}.map-route-card-copy small{max-width:42vw;font-size:9px}.map-route-card > button{padding:7px;font-size:9px} }
+
+/* Floating booking mascot */
+.lion-mascot-widget { position: fixed; z-index: 70; right: max(22px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); display: grid; justify-items: end; gap: 9px; }
+.lion-mascot-button { position: relative; display: grid; width: 76px; height: 76px; place-items: center; padding: 3px; border: 1px solid rgba(214, 231, 168, .42); border-radius: 50%; background: #21392a; box-shadow: 0 12px 32px rgba(0, 0, 0, .3); cursor: pointer; }
+.leo-chat { display: flex; width: min(370px, calc(100vw - 32px)); height: min(570px, calc(100dvh - 130px)); flex-direction: column; overflow: hidden; border: 1px solid rgba(196,219,157,.22); border-radius: 22px; color: #eef2df; background: linear-gradient(155deg,#20392a,#14251b 72%); box-shadow: 0 24px 70px rgba(0,0,0,.42); }
+.leo-chat-header { display:flex; align-items:center; gap:11px; padding:15px 17px; border-bottom:1px solid rgba(235,242,217,.1); }
+.leo-avatar { width:38px;height:38px;padding:2px;border-radius:50%;background:#375438; }
+.leo-avatar .lion-mascot-art { width:100%;height:100%; }
+.leo-chat-header > span:nth-child(2) { display:grid;gap:4px; }
+.leo-chat-header strong { font-family:'Fraunces',Georgia,serif;font-size:16px;font-weight:500; }
+.leo-chat-header small { display:flex;align-items:center;gap:6px;color:#aebda4;font-size:10px; }
+.leo-chat-header small i { width:6px;height:6px;border-radius:50%;background:#bce574; }
+.leo-chat-header button { display:grid;width:30px;height:30px;place-items:center;margin-left:auto;border:0;border-radius:50%;color:#d5dfc9;background:rgba(255,255,255,.07);cursor:pointer; }
+.leo-chat-messages { display:flex;flex:1;flex-direction:column;gap:10px;overflow:auto;padding:17px 14px; }
+.leo-message { max-width:87%; }
+.leo-message p { margin:0;padding:11px 13px;border-radius:14px 14px 14px 4px;color:#e7eddb;background:rgba(255,255,255,.075);font-size:12px;line-height:1.55; }
+.leo-message-you { align-self:flex-end; }
+.leo-message-you p { border-radius:14px 14px 4px 14px;color:#1a291c;background:#d9ebaa; }
+.leo-chat-suggestions { display:flex;width:100%;min-width:0;flex:0 0 auto;box-sizing:border-box;gap:8px;overflow-x:auto;overflow-y:hidden;padding:0 13px 12px;white-space:nowrap;scrollbar-width:thin;scrollbar-color:rgba(188,229,116,.35) transparent; }
+.leo-chat-suggestions button { display:flex;flex:0 0 auto;align-items:center;gap:6px;padding:8px 10px;border:1px solid rgba(209,230,170,.18);border-radius:999px;color:#dbe6c9;background:rgba(255,255,255,.045);font-size:10px;white-space:nowrap;cursor:pointer; }
+.leo-chat-suggestions button:hover { border-color:#bce574;background:rgba(188,229,116,.1); }
+.leo-chat-form { display:flex;gap:8px;padding:12px;border-top:1px solid rgba(235,242,217,.1); }
+.leo-chat-form input { min-width:0;flex:1;padding:11px 13px;border:1px solid rgba(230,240,213,.12);border-radius:12px;outline:0;color:#f2f5e9;background:rgba(0,0,0,.16);font:inherit;font-size:12px; }
+.leo-chat-form input:focus { border-color:#a9cb72; }
+.leo-chat-form button { display:grid;width:41px;place-items:center;border:0;border-radius:12px;color:#203021;background:#d8ec8a;cursor:pointer; }
+.lion-mascot-art { width: 100%; height: 100%; }
+.lion-mascot-online { position: absolute; right: 5px; bottom: 7px; width: 12px; height: 12px; border: 2px solid #21392a; border-radius: 50%; background: #bce574; box-shadow: 0 0 12px rgba(188, 229, 116, .6); }
+.lion-mascot-bubble { position: relative; display: grid; width: min(260px, calc(100vw - 40px)); gap: 9px; padding: 16px; border: 1px solid var(--line); border-radius: 15px 15px 4px 15px; color: var(--ink); background: var(--surface); box-shadow: 0 16px 42px rgba(0, 0, 0, .25); }
+.lion-mascot-dismiss { position: absolute; top: 8px; right: 8px; display: grid; width: 25px; height: 25px; place-items: center; border: 0; border-radius: 50%; color: var(--muted); background: var(--surface-soft); cursor: pointer; }
+.lion-mascot-bubble-eyebrow { display: flex; align-items: center; gap: 5px; color: var(--green); font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.lion-mascot-bubble > strong { max-width: 205px; color: var(--ink); font-family: 'Fraunces', Georgia, serif; font-size: 16px; font-weight: 500; line-height: 1.35; }
+.lion-mascot-cta { display: flex; align-items: center; justify-content: space-between; padding: 9px 11px; border: 0; border-radius: 8px; color: #19271b; background: #dff391; font-size: 11px; font-weight: 800; cursor: pointer; }
+.lion-mascot-cta:hover { background: #cde979; }
+@media (max-width: 560px) { .lion-mascot-widget { right: 14px; bottom: max(14px, env(safe-area-inset-bottom)); gap: 7px; } .lion-mascot-button { width: 62px; height: 62px; } .lion-mascot-bubble { width: min(242px, calc(100vw - 32px)); padding: 14px; } }
+@media (prefers-reduced-motion: reduce) { .lion-mascot-button { animation: none; } }
 .route-loading { display: grid; min-height: 100vh; place-items: center; color: #526658; background: #f7f8f3; font-size: 14px; }
 .standalone-animals .animals-section { padding-top: 20px; }
 .standalone-tours .tours-section { padding-top: 15px; }
@@ -652,6 +870,9 @@
   .about-info-card p, .about-info-card a { font-size: 10px; }
   .guide-grid { grid-template-columns: 1fr; }
   .guide-card img { height: 290px; }
+  .zoo-map-grid { grid-template-columns: 1fr; }
+  .zoo-map-zone { min-height: 78px; }
+  .zoo-map-path { height: 30px; }
   .ticket-actions { grid-template-columns: 1fr; }
   .ticket-actions .booking-primary-button { min-height: 43px; }
 }

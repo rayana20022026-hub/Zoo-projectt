@@ -68,9 +68,19 @@ service cloud.firestore {
         && request.resource.data.guestsCount <= 8
         && request.resource.data.totalPrice is number
         && request.resource.data.totalPrice >= 0
+        && request.resource.data.status == 'awaiting-payment'
         && request.resource.data.createdAt is timestamp;
       allow read: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
-      allow update, delete: if false;
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid
+        && resource.data.status == 'awaiting-payment'
+        && request.resource.data.status == 'paid'
+        && request.resource.data.paidAt == request.time
+        && request.resource.data.paymentMethod == 'MBank QR'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'paidAt', 'paymentMethod', 'paymentProofPath'])
+        && (!request.resource.data.keys().hasAny(['paymentProofPath'])
+          || request.resource.data.paymentProofPath.matches('payment-proofs/' + request.auth.uid + '/' + bookingId + '/.*'));
+      allow delete: if false;
     }
   }
 }

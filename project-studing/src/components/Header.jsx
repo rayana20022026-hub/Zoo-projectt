@@ -24,6 +24,7 @@ export default function Header({ onBook, user, onLogin, onSignOut, onMyTickets }
       <nav aria-label={t('siteNav')} className={`main-nav ${menuOpen ? 'is-open' : ''}`}>
         <NavLink end onClick={() => setMenuOpen(false)} to="/">{t('navHome')}</NavLink>
         <NavLink onClick={() => setMenuOpen(false)} to="/animals">{t('navAnimals')}</NavLink>
+        <NavLink onClick={() => setMenuOpen(false)} to="/map">{t('navMap')}</NavLink>
         <NavLink onClick={() => setMenuOpen(false)} to="/tours">{t('navTours')}</NavLink>
         <NavLink onClick={() => setMenuOpen(false)} to="/about">{t('navAbout')}</NavLink>
       </nav>

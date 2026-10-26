@@ -3,6 +3,7 @@ import { getAnalytics } from 'firebase/analytics'
 import { browserLocalPersistence, initializeAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 import { getFunctions } from 'firebase/functions'
+import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBHo7B2gg43S7oqn_C092F6vIHb_mcVkdY',
@@ -20,3 +21,4 @@ export const analytics = getAnalytics(app)
 export const auth      = initializeAuth(app, { persistence: browserLocalPersistence })
 export const db        = getFirestore(app)
 export const functions = getFunctions(app)
+export const storage   = getStorage(app)

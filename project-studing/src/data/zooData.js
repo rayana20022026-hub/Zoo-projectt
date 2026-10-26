@@ -296,6 +296,10 @@ for (const [language, copy] of Object.entries(pageCopy)) {
   Object.assign(translations[language], copy)
 }
 
+for (const [language, label] of Object.entries({ ky: 'Карта', ru: 'Карта', en: 'Map', tr: 'Harita', zh: '地图', kk: 'Карта' })) {
+  translations[language].navMap = label
+}
+
 const guideTranslations = {
   ky: {
     teamEyebrow: 'Биздин команда', guidesTitle: 'Ар бир жашоочуну тааныган гиддер',

@@ -9,6 +9,7 @@ import ErrorBoundary from './components/ErrorBoundary.jsx'
 const Admin = lazy(() => import('./pages/Admin.jsx'))
 const Home = lazy(() => import('./pages/Home.jsx'))
 const AnimalsPage = lazy(() => import('./pages/AnimalsPage.jsx'))
+const ZooMap = lazy(() => import('./components/ZooMap.jsx'))
 const ToursPage = lazy(() => import('./pages/ToursPage.jsx'))
 const AboutPage = lazy(() => import('./pages/AboutPage.jsx'))
 
@@ -35,6 +36,7 @@ function App() {
           >
             <Route element={<Home />} path="/" />
             <Route element={<AnimalsPage />} path="/animals" />
+            <Route element={<ZooMap />} path="/map" />
             <Route element={<ToursPage />} path="/tours" />
             <Route element={<AboutPage />} path="/about" />
           </Route>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import { tours } from '../data/zooData.js'
 import { auth } from '../firebase.js'
 import useFirestoreCollection from '../hooks/useFirestoreCollection.js'
@@ -10,9 +10,11 @@ import Footer from './Footer.jsx'
 import AuthModal from './AuthModal.jsx'
 import BookingModal from './BookingModal.jsx'
 import MyTicketsModal from './MyTicketsModal.jsx'
+import LionMascot from './LionMascot.jsx'
 import '../pages/Home.css'
 
 export default function SiteLayout() {
+  const navigate = useNavigate()
   const { documents: liveTours } = useFirestoreCollection('tours', tours, true)
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
@@ -33,6 +35,11 @@ export default function SiteLayout() {
       setAuthModalOpen(true)
     }
   }), [])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('mode') === 'resetPassword' && params.has('oobCode')) setAuthModalOpen(true)
+  }, [])
 
   const openBooking = useCallback((tour = defaultTour) => {
     if (!tour) return
@@ -78,8 +85,9 @@ export default function SiteLayout() {
       <Header onBook={openBooking} onLogin={() => setAuthModalOpen(true)} onSignOut={logOut} onMyTickets={() => setTicketsOpen(true)} user={user} />
       <Outlet />
       <Footer />
+      <LionMascot />
       <AnimatePresence>
-        {selectedTour && <BookingModal onClose={() => setSelectedTour(null)} onTourChange={setSelectedTour} tours={liveTours} tour={selectedTour} />}
+        {selectedTour && <BookingModal onClose={() => setSelectedTour(null)} onPaymentComplete={() => { setSelectedTour(null); navigate('/'); setTicketsOpen(true) }} onTourChange={setSelectedTour} tours={liveTours} tour={selectedTour} />}
         {authModalOpen && (
           <AuthModal
             key="visitor-auth"
