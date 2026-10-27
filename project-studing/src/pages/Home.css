@@ -175,7 +175,7 @@
 .tour-search input { width: 100%; min-width: 0; border: 0; outline: 0; color: var(--ink); background: transparent; font: inherit; font-size: 11px; }
 .tour-search input::placeholder { color: var(--muted); }
 .tour-search button { display: grid; width: 25px; height: 25px; flex: 0 0 auto; place-items: center; padding: 0; border: 0; border-radius: 50%; color: var(--muted); background: var(--surface-soft); }
-.tour-filter-list { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.tour-filter-list { display: flex; flex-wrap: nowrap; justify-content: flex-end; gap: 6px; max-width: 100%; overflow-x: auto; }
 .tour-no-results { display: grid; min-height: 260px; justify-items: center; align-content: center; gap: 12px; padding: 30px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; }
 .tour-no-results > svg { color: var(--green); }
 .tour-no-results strong { color: var(--ink); font-family: 'Fraunces', Georgia, serif; font-size: 24px; font-weight: 500; }
@@ -730,9 +730,9 @@
 .zoo-map-modal-description { margin: 12px 0 0; padding: 13px; border-radius: 9px; color: var(--muted); background: var(--surface-soft); font-size: 11px; line-height: 1.65; }
 
 /* Interactive illustrated park map */
-.zoo-map-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; align-items: stretch; gap: 16px; }
-.zoo-map-board { min-height: 520px; padding: 0; overflow:hidden; border: 1px solid rgba(167, 190, 133, .35); border-radius: 22px; background: linear-gradient(145deg,#263d2c,#132319 74%); box-shadow: 0 20px 40px rgba(0,0,0,.4), inset 0 1px rgba(255,255,255,.16), inset 0 -8px 18px rgba(0,0,0,.25); }
-.zoo-map-canvas { position:absolute;inset:0;transform-origin:center;transition:transform .8s cubic-bezier(0.4, 0, 0.2, 1);will-change:transform; }
+.zoo-map-layout { display: grid; width:100%;min-width:0;grid-template-columns: minmax(0, 1fr) 300px; align-items: stretch; gap: 16px; }
+.zoo-map-board { position:relative;width:100%;min-width:0;min-height:520px;padding:0;overflow:hidden;border:1px solid rgba(167,190,133,.35);border-radius:22px;background:linear-gradient(145deg,#263d2c,#132319 74%);box-shadow:0 25px 48px rgba(0,0,0,.36),inset 0 1px rgba(255,255,255,.2),inset 0 -10px 20px rgba(0,0,0,.26);transform:perspective(1600px) rotateX(4deg);transform-origin:center center;transform-style:preserve-3d;touch-action:pan-y; }
+.zoo-map-canvas { position:absolute;inset:0;width:100%;height:100%;transform-origin:center;transition:transform .2s ease-out;will-change:transform; }
 .zoo-map-route { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; filter: drop-shadow(0 0 4px rgba(216,236,138,.75)); }
 .zoo-map-route-line,.zoo-map-route-glow { stroke-dasharray:12 10;stroke-dashoffset:1200;animation:draw-zoo-route 2.2s ease forwards,flow-zoo-route 1.1s linear 2.2s infinite; }
 .zoo-map-route-line { stroke:#d9ff72;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;filter:url(#routeGlow); }
@@ -750,21 +750,97 @@
 .zoo-map-steps { display: grid; gap: 10px; margin-top: 5px; }
 .zoo-map-steps > span { display: flex; align-items: flex-start; gap: 8px; }
 .zoo-map-steps svg { flex: 0 0 auto; color: #8aa65e; }
-.zoo-map-artwork { position: absolute; inset: 0; width: 100%; height: 100%; }
+.zoo-map-artwork { position:absolute;inset:0;display:block;width:100%;height:100%; }
+.map-sector { stroke:rgba(231,244,191,.62);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 3px 1px rgba(46,71,35,.32)); }
+.map-sector-predators { fill:url(#sectorPredators); }
+.map-sector-birds { fill:url(#sectorBirds); }
+.map-sector-reptiles { fill:url(#sectorReptiles); }
+.map-sector-mammals { fill:url(#sectorMammals); }
+.map-sector-rare { fill:url(#sectorRare); }
+.map-sector-services { fill:#bad578; }
+.map-entry-plaza { fill:#d7d990;stroke:#9eb56a;stroke-width:3; }
+.map-lake { fill:#57b7aa;stroke:#d8eeaf;stroke-width:7; }
+.map-lake-highlight { fill:none;stroke:rgba(232,255,220,.75);stroke-width:5;stroke-linecap:round; }
+.map-water-pools { fill:#62bbae;stroke:#d4e8a5;stroke-width:4;filter:drop-shadow(0 3px 3px rgba(26,57,43,.35)); }
+.map-water-pools path { stroke-linejoin:round; }
+.map-rocks { filter:drop-shadow(0 4px 2px rgba(32,49,28,.42)); }
+.map-rocks path { fill:#71866a;stroke:#d3d9a3;stroke-width:2;stroke-linejoin:round;paint-order:stroke fill; }
+.map-trees { filter:drop-shadow(0 6px 4px rgba(28,50,27,.42)); }
+.map-trees rect { fill:#755c39;stroke:#57472e;stroke-width:1; }
+.map-trees circle { fill:#3d7945;stroke:#88a954;stroke-width:2; }
+.map-trees circle:nth-child(3) { fill:#548b48;stroke:none; }
+.map-shrubs { fill:#548d47;stroke:#83a950;stroke-width:2;filter:drop-shadow(0 3px 2px rgba(28,50,27,.36)); }
+.map-shrubs circle:nth-child(3n) { fill:#75a850;stroke:none; }
+.map-entrance circle { fill:#f2dfa0;stroke:#52783e;stroke-width:4; }
+.map-entrance path { fill:none;stroke:#355a37;stroke-width:3;stroke-linecap:round;stroke-linejoin:round; }
+.map-entrance-gate text { fill:#f3e5ab;font-family:'DM Sans',sans-serif;font-size:7px;font-weight:900;letter-spacing:.6px;text-anchor:middle; }
+.map-gate-roof { fill:#365e39;stroke:#263e2b;stroke-width:4;stroke-linejoin:round; }
+.map-gate-beam,.map-gate-pillar { fill:#a86d44;stroke:#6f4c35;stroke-width:2; }
+.map-gate-fence { fill:#536e42;stroke:#344d34;stroke-width:2; }
+.map-gate-sign { fill:#355a37;stroke:#d9dc99;stroke-width:1.5; }
+.map-animals { pointer-events:none; }
+.map-animal { stroke:#523b2c;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round; }
+.map-animal > path:not(.map-animal-detail) { fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round; }
+.map-animal-detail { fill:none;stroke:#523b2c;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+.map-animal-lion { color:#bd7b35;fill:#d89b4d; }
+.map-animal-face { fill:#f1cf8e;stroke:#8b5d31; }
+.map-animal-bird { color:#497c77;fill:#d47775;stroke:#456b4f; }
+.map-animal-bird > path:first-of-type { fill:#d47775;stroke:#456b4f; }
+.map-animal-turtle { color:#47764c;fill:#749d54;stroke:#426440; }
+.map-animal-turtle .map-animal-detail { stroke:#3c5e3d; }
+.map-animal-elephant { color:#677d79;fill:#839590;stroke:#526864; }
+.map-animal-elephant > path:first-of-type { fill:#839590;stroke:#526864; }
+.map-animal-elephant .map-animal-detail { stroke:#394f4c; }
+.map-animal-panda { color:#29372f;fill:#f1eee0;stroke:#485648; }
+.map-animal-patch { fill:#2d382f;stroke:none; }
+.map-animal-ear { fill:#2d382f;stroke:#485648; }
+.map-service-kiosk { fill:#e8d693;stroke:#46633c;stroke-width:2;stroke-linejoin:round; }
+.map-service-kiosk rect { fill:#c9965f; }
+.map-service-kiosk path:first-child { fill:#d4b16b; }
+.map-crossroads circle:first-child { fill:#dfdda0;stroke:#8ea85a;stroke-width:3; }
+.map-crossroads circle:last-child { fill:#678846; }
+.map-art-labels { fill:#355b37;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:800;letter-spacing:1.4px; }
+.zoo-map-walkways { stroke:#c9bd95;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;opacity:.82;filter:drop-shadow(0 2px 0 rgba(84,92,54,.5)) drop-shadow(0 5px 4px rgba(9,20,12,.3)); }
+.zoo-map-walkway { fill:none; }
 .zoo-map-compass { z-index: 2; top: 20px; right: 22px; color: #e6edcf; }
 .zoo-map-compass span { color: #d8ec8a; }
-.map-marker { position: absolute; z-index: 4; display: grid; justify-items: center; gap: 3px; margin: -23px 0 0 -23px; padding: 0; border: 0; color: #f6f4e7; background: transparent; cursor: pointer; transition:filter .2s; }
+.map-marker { position: absolute; z-index: 4; display: grid; justify-items: center; gap: 3px; margin: -23px 0 0 -23px; padding: 0; border: 0; color: #f6f4e7; background: transparent; cursor: pointer; filter:drop-shadow(0 4px 4px rgba(26,43,26,.38));transition:filter .2s; }
 .map-marker:hover { filter:drop-shadow(0 10px 8px rgba(0,0,0,.55)); }
 .map-marker-pin { display: grid; width: 46px; height: 46px; place-items: center; border: 2px solid rgba(242, 241, 222, .9); border-radius: 50% 50% 50% 12px; color: #e8f49d; background: linear-gradient(145deg,#557047,#1e3928 66%,#122019); box-shadow: 0 7px 18px rgba(7, 15, 10, .38), inset 0 2px 3px rgba(255,255,255,.3), inset 0 -4px 5px rgba(0,0,0,.28); transform: rotate(-45deg) rotate(var(--map-counter-rotation, 0deg)); transition: box-shadow .2s, background .2s; }
 .map-marker-pin svg { transform: rotate(45deg); }
 .map-marker:hover .map-marker-pin, .map-marker.is-selected .map-marker-pin { background: linear-gradient(145deg,#829451,#405b34); box-shadow: 0 0 0 6px rgba(218, 237, 142, .18), 0 9px 22px rgba(7, 15, 10, .45), 0 0 22px rgba(218,237,142,.42); animation:map-marker-glow 1.8s ease-in-out infinite; }
 @keyframes map-marker-glow { 50% { box-shadow:0 0 0 9px rgba(218,237,142,.08),0 11px 24px rgba(7,15,10,.5),0 0 28px rgba(218,237,142,.6); } }
-.zoo-map-controls { position:absolute;z-index:8;top:14px;left:14px;display:grid;gap:6px;padding:6px;border:1px solid rgba(240,245,225,.17);border-radius:14px;background:rgba(18,34,24,.82);box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(10px); }
-.zoo-map-controls button { display:grid;width:34px;height:34px;place-items:center;border:0;border-radius:9px;color:#e6efcf;background:rgba(255,255,255,.06);cursor:pointer; }
+.zoo-map-controls { position:absolute;z-index:8;top:14px;left:14px;display:grid;gap:5px;padding:6px;border:1px solid rgba(240,245,225,.24);border-radius:14px;background:rgba(18,34,24,.88);box-shadow:0 10px 25px rgba(0,0,0,.3);backdrop-filter:blur(10px);cursor:default; }
+.zoo-map-controls button { display:grid;width:34px;height:34px;place-items:center;border:0;border-radius:9px;color:#e6efcf;background:rgba(255,255,255,.06);cursor:pointer;transition:color .18s,background .18s,transform .18s; }
 .zoo-map-controls button:hover { color:#1e2b1b;background:#d8ec8a; }
+.zoo-map-controls button:disabled { opacity:.35;cursor:not-allowed; }
+.zoo-map-controls output { color:#d7e5b2;font-size:9px;font-weight:800;text-align:center; }
 .map-marker-number { position: absolute; top: 52px; padding: 3px 7px; border: 1px solid rgba(238, 240, 218, .22); border-radius: 20px; background: rgba(20, 35, 26, .88); font-size: 9px; font-weight: 800; letter-spacing: .08em; transform: rotate(var(--map-counter-rotation, 0deg)); }
 .map-marker-tooltip { position: absolute; top: -32px; left: 50%; width: max-content; max-width: 170px; padding: 7px 10px; border: 1px solid rgba(238, 240, 218, .15); border-radius: 8px; color: #f4f1e4; background: #16271d; font-size: 11px; opacity: 0; pointer-events: none; transform: translate(-50%, 4px) rotate(var(--map-counter-rotation, 0deg)); transition: opacity .18s, transform .18s; }
+.map-marker-number { top:48px;z-index:2;transform:none; }
+.map-marker-tooltip { top:65px;left:50%;width:max-content;max-width:124px;padding:4px 7px;border-color:rgba(53,91,55,.28);border-radius:7px;color:#28472e;background:rgba(247,249,225,.94);font-size:9px;line-height:1.2;text-align:center;white-space:normal;opacity:1;transform:translateX(-50%);box-shadow:0 3px 8px rgba(29,52,29,.2); }
+.map-marker.is-selected .map-marker-tooltip { color:#243c26;border-color:#d9ee93;background:#e9f5b7; }
+.map-marker:hover .map-marker-tooltip,.map-marker:focus-visible .map-marker-tooltip { opacity:1;transform:translateX(-50%); }
 .map-marker:hover .map-marker-tooltip, .map-marker:focus-visible .map-marker-tooltip { opacity: 1; transform: translate(-50%, 0) rotate(var(--map-counter-rotation, 0deg)); }
+.map-marker.is-highlighted .map-marker-pin { color:#fff; background:linear-gradient(145deg,#b5cf69,#526d38); box-shadow:0 0 0 9px rgba(218,237,142,.2),0 0 30px rgba(218,237,142,.72); animation:map-marker-glow 1.1s ease-in-out infinite; }
+.map-marker.is-selected .map-marker-pin { animation:map-marker-glow 1.35s ease-in-out infinite; }
+.map-zone-preview { position:absolute;z-index:9;top:16px;right:16px;display:grid;width:min(275px,calc(100% - 32px));gap:8px;padding:18px;border:1px solid rgba(219,238,175,.3);border-radius:17px;color:#eff4df;background:rgba(18,36,25,.95);box-shadow:0 18px 44px rgba(0,0,0,.42);backdrop-filter:blur(14px); }
+.zoo-map-sidebar .map-zone-preview { position:relative;inset:auto;z-index:auto;width:auto;margin:12px 12px 5px;padding:14px;border-color:rgba(154,183,91,.35);box-shadow:0 8px 22px rgba(15,28,18,.14); }
+.map-zone-preview-close { position:absolute;z-index:50;top:10px;right:10px;display:grid;width:34px;height:34px;place-items:center;padding:0;border:1px solid rgba(239,244,223,.2);border-radius:9px;color:#eff4df;background:#263d2c;cursor:pointer;pointer-events:auto;transition:background .2s,transform .2s; }
+.map-zone-preview-close:hover { background:rgba(255,255,255,.17);transform:rotate(8deg); }
+.map-zone-preview-icon { display:grid;width:40px;height:40px;place-items:center;border-radius:12px;color:#d8ec8a;background:rgba(217,255,114,.12); }
+.map-zone-preview > small { color:#c7d49c;font-size:9px;font-weight:800;letter-spacing:.12em; }
+.map-zone-preview > strong { padding-right:24px;font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:500; }
+.map-zone-preview p { margin:0;color:#bdc9ae;font-size:11px;line-height:1.55; }
+.map-zone-preview-animals { display:flex;flex-wrap:wrap;gap:5px; }
+.map-zone-preview-animals span { padding:4px 7px;border:1px solid rgba(219,238,175,.15);border-radius:20px;color:#e3edce;background:rgba(255,255,255,.05);font-size:9px; }
+.map-zone-preview-action { display:flex;align-items:center;justify-content:center;gap:7px;margin-top:3px;padding:10px;border:0;border-radius:10px;color:#243323;background:#d9ed91;font-size:11px;font-weight:750;transition:transform .2s,background .2s; }
+.map-zone-preview-action:hover { background:#e8f6b4;transform:translateY(-1px); }
+.zoo-map-sheet-toggle { display:none; }
+.zoo-map-list-item.is-hovered { border-color:rgba(146,174,90,.55);background:var(--surface-soft);transform:translateX(3px); }
+.zoo-map-list-item { transition:opacity .18s,background .18s,border-color .18s,transform .18s; }
+.zoo-map-controls button { transition:color .18s,background .18s,transform .18s; }
+.zoo-map-controls button:hover { transform:scale(1.06); }
 .zoo-map-sidebar { display: flex; min-width: 0; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }
 .zoo-map-sidebar-heading { display: grid; gap: 5px; padding: 21px 19px 16px; border-bottom: 1px solid var(--line); }
 .zoo-map-sidebar-heading span { color: var(--green); font-size: 9px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
@@ -776,7 +852,9 @@
 .zoo-map-location small { color:var(--muted);font-size:9px;line-height:1.4; }
 .zoo-map-zone-list { display: grid; padding: 7px; }
 .zoo-map-list-item { display: flex; min-width: 0; align-items: center; gap: 10px; padding: 10px 9px; border: 1px solid transparent; border-radius: 11px; color: var(--ink); background: transparent; cursor: pointer; text-align: left; transition: opacity .18s, background .18s, border-color .18s; }
-.zoo-map-list-item:hover, .zoo-map-list-item.is-selected { border-color: var(--line); background: var(--surface-soft); }
+.zoo-map-list-item:hover { border-color:var(--line);background:var(--surface-soft); }
+.zoo-map-list-item.is-selected { border-color:#9ab65b;background:color-mix(in srgb,#a9c66b 17%,var(--surface));box-shadow:inset 3px 0 #9ab65b,0 5px 16px rgba(72,102,43,.12); }
+.zoo-map-list-item.is-selected .zoo-map-list-icon { box-shadow:0 0 0 3px rgba(169,198,107,.18); }
 .zoo-map-list-item.is-dimmed { opacity: .35; }
 .zoo-map-list-icon { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border-radius: 10px; color: #d8ec8a; background: #2a3c2a; }
 .zoo-map-list-icon.zoo-map-zone-birds { color: #a1d7d2; background: #203b3d; }
@@ -792,7 +870,33 @@
 .zoo-map-entrance strong { color: var(--ink); font-size: 11px; }
 .zoo-map-entrance small { color: var(--muted); font-size: 9px; }
 @media (max-width: 900px) { .zoo-map-layout { grid-template-columns: 1fr; } .zoo-map-board { min-height: min(68vw, 510px); } .zoo-map-zone-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } .zoo-map-sidebar-heading { padding-bottom: 13px; } .zoo-map-entrance { margin-top: 2px; } }
-@media (max-width: 560px) { .zoo-map-board { min-height: 370px; } .map-marker-pin { width: 38px; height: 38px; } .map-marker-pin svg { width: 15px; height: 15px; } .map-marker-number { top: 43px; font-size: 8px; } .zoo-map-zone-list { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+  .zoo-map-page { padding-top:100px;padding-bottom:20px; }
+  .zoo-map-section { padding-right:12px;padding-left:12px; }
+  .zoo-map-heading { margin-bottom:14px; }
+  .zoo-map-heading h1 { font-size:36px; }
+  .zoo-map-heading p { font-size:11px; }
+  .zoo-map-filters { flex-wrap:nowrap;overflow-x:auto;padding:2px 1px 8px;scrollbar-width:none; }
+  .zoo-map-filters::-webkit-scrollbar { display:none; }
+  .zoo-map-board { position:sticky;top:78px;z-index:1;height:min(620px,calc(100dvh - 205px));min-height:min(340px,calc(100dvh - 205px));max-height:620px;margin-bottom:16px;border-radius:18px; }
+  .map-marker-pin { width:38px;height:38px; }
+  .map-marker-pin svg { width:15px;height:15px; }
+  .map-marker-number { top:43px;font-size:8px; }
+  .map-zone-preview { top:10px;right:10px;width:min(245px,calc(100% - 20px));padding:14px; }
+  .zoo-map-sidebar .map-zone-preview { top:auto;right:auto;left:auto;width:auto;margin:10px 12px 4px;padding:13px; }
+  .zoo-map-sidebar { position:fixed;z-index:65;right:0;bottom:0;left:0;max-height:min(67dvh,560px);padding-bottom:env(safe-area-inset-bottom);overflow-x:hidden;overflow-y:auto;border-radius:22px 22px 0 0;border-bottom:0;box-shadow:0 -12px 35px rgba(0,0,0,.22);transition:max-height .28s ease; }
+  .zoo-map-sheet-toggle { display:flex;position:relative;align-items:center;justify-content:space-between;min-height:52px;padding:17px 18px 10px;border:0;color:var(--ink);background:var(--surface);font-size:13px; }
+  .zoo-map-sheet-handle { position:absolute;top:7px;left:50%;width:38px;height:4px;border-radius:4px;background:var(--muted);opacity:.45;transform:translateX(-50%); }
+  .zoo-map-sidebar.is-collapsed { max-height:68px; }
+  .zoo-map-sidebar.is-collapsed > :not(.zoo-map-sheet-toggle) { display:none; }
+  .zoo-map-sidebar-heading { display:none; }
+  .zoo-map-zone-list { grid-template-columns:1fr;max-height:none;overflow:visible;padding:5px 12px 10px; }
+  .zoo-map-list-item { min-height:52px; }
+  .zoo-map-location { margin:8px 12px 0; }
+  .zoo-map-entrance { margin:4px 12px 10px; }
+  .zoo-map-controls { top:10px;left:10px;gap:4px;padding:5px; }
+  .zoo-map-controls button { width:32px;height:32px; }
+}
 @media (max-width:560px) { .map-route-card { right:8px;bottom:8px;left:8px;padding:9px;gap:8px; } .map-route-card-copy strong {font-size:12px}.map-route-card-copy small{max-width:42vw;font-size:9px}.map-route-card > button{padding:7px;font-size:9px} }
 
 /* Floating booking mascot */

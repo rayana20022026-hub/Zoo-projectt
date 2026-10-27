@@ -12,23 +12,47 @@ const tourFilters = [
   { id: 'family', labels: { ru: 'Семейные', en: 'Family', tr: 'Aile', zh: '家庭', kg: 'Үй-бүлөлүк', kk: 'Отбасылық' } },
   { id: 'vip', labels: { ru: 'VIP-тур', en: 'VIP tour', tr: 'VIP tur', zh: 'VIP 游览', kg: 'VIP тур', kk: 'VIP тур' } },
   { id: 'feeding', labels: { ru: 'С кормлением', en: 'Animal feeding', tr: 'Besleme', zh: '动物喂食', kg: 'Азыктандыруу', kk: 'Азықтандыру' } },
-  { id: 'popular', labels: { ru: 'Популярные', en: 'Popular', tr: 'Popüler', zh: '热门', kg: 'Популярдуу', kk: 'Танымал' } },
 ]
 
 function getTourName(tour, language, t) {
+  if (!tour || typeof tour !== 'object') return ''
   const title = resolveLocalizedField(tour, 'title', language, '')
-  if (title) return t(title)
-  if (tour.titleKey) return t(tour.titleKey)
-  return resolveLocalizedField(tour, 'name', language, tour.name ?? '')
+  if (title) return String(t(title) ?? title)
+  if (tour.titleKey) return String(t(tour.titleKey) ?? tour.titleKey)
+  return String(resolveLocalizedField(tour, 'name', language, tour.name ?? '') ?? '')
 }
 
-function matchesFilter(tour, filter) {
-  const includes = tour.includes ?? []
-  const category = String(tour.categoryKey ?? tour.category ?? '').toLowerCase()
-  if (filter === 'family') return includes.includes('familyWelcome') || category === 'family' || tour.id === 'junior-naturalist'
-  if (filter === 'vip') return tour.isVip === true || category === 'vip' || tour.id === 'keeper'
-  if (filter === 'feeding') return category === 'feeding' || includes.includes('feedingExperience') || tour.feedingExperience === true
-  if (filter === 'popular') return category === 'popular' || tour.featured === true || tour.popular === true
+function safeText(value) {
+  if (value == null) return ''
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value)
+  try {
+    return JSON.stringify(value) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+function matchesFilter(tour, filter, name) {
+  if (!tour || typeof tour !== 'object') return false
+  const includes = Array.isArray(tour.includes) ? tour.includes : tour.includes == null ? [] : [tour.includes]
+  const values = [
+    tour.categoryKey,
+    tour.category,
+    tour.type,
+    tour.typeKey,
+    name,
+    tour.name,
+    tour.title,
+    tour.description,
+    tour.descriptionTranslations,
+    includes,
+  ]
+  const text = values.map(safeText).join(' ').toLocaleLowerCase()
+  const hasInclude = (key) => includes.some((value) => safeText(value).toLowerCase().includes(key.toLowerCase()))
+
+  if (filter === 'family') return tour.familyWelcome === true || hasInclude('familywelcome') || tour.id === 'junior-naturalist' || /family|семейн|үй.?бүл|отбас|детск|балдар/i.test(text)
+  if (filter === 'vip') return tour.isVip === true || /vip|закулись|backstage|keeper|камкорчунун артынан/i.test(text)
+  if (filter === 'feeding') return tour.feedingExperience === true || hasInclude('feedingexperience') || /feeding|кормлен|корм|азыкт|тамактандыруу/i.test(text)
   return true
 }
 
@@ -37,10 +61,12 @@ export default function ToursSection({ isLoading = false, onBook, tours: visible
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
   const filteredTours = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase(language)
-    return visibleTours.filter((tour) => {
-      const name = getTourName(tour, language, t).toLocaleLowerCase(language)
-      return name.includes(normalizedSearch) && matchesFilter(tour, activeFilter)
+    const safeTours = Array.isArray(visibleTours) ? visibleTours.filter((tour) => tour && typeof tour === 'object') : starterTours
+    const locale = typeof language === 'string' ? language : 'ru'
+    const normalizedSearch = String(search ?? '').trim().toLocaleLowerCase(locale)
+    return safeTours.filter((tour) => {
+      const name = getTourName(tour, locale, t).toLocaleLowerCase(locale)
+      return name.includes(normalizedSearch) && matchesFilter(tour, activeFilter, name)
     })
   }, [activeFilter, language, search, t, visibleTours])
 
